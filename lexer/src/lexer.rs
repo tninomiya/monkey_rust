@@ -33,11 +33,11 @@ impl<'a> Lexer<'a> {
             Some('+') => Token::plus(),
             Some('{') => Token::lbrace(),
             Some('}') => Token::rbrace(),
-            Some('a'..='z') | Some('A'..='Z') | Some('_') => {
+            Some(c) if is_identifier(&c) => {
                 let literal = &self.read_identifier()?;
                 Token::lookup_ident(literal)
             }
-            Some('0'..='9') => {
+            Some(c) if is_number(&c) => {
                 let literal = &self.read_number()?;
                 let num: i64 = literal.parse::<i64>().unwrap();
                 Token::int(num)
@@ -56,27 +56,21 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_identifier(&mut self) -> Result<String, LexError> {
-        let mut ident = String::new();
-        match self.ch {
-            Some('a'..='z') | Some('A'..='Z') | Some('_') => ident.push(self.ch.unwrap()),
-            Some(c) => return Err(LexError::invalid_char(c)),
-            None => return Err(LexError::eof()),
-        }
-        while let Some('a'..='z') | Some('A'..='Z') | Some('_') = self.input.peek() {
-            self.read_char();
-            ident.push(self.ch.unwrap());
-        }
-        Ok(ident)
+        self.read_sequence(is_identifier)
     }
 
     fn read_number(&mut self) -> Result<String, LexError> {
+        self.read_sequence(is_number)
+    }
+
+    fn read_sequence(&mut self, mut f: impl FnMut(&char) -> bool) -> Result<String, LexError> {
         let mut ident = String::new();
         match self.ch {
-            Some('0'..='9') => ident.push(self.ch.unwrap()),
+            Some(c) if f(&c) => ident.push(self.ch.unwrap()),
             Some(c) => return Err(LexError::invalid_char(c)),
             None => return Err(LexError::eof()),
         }
-        while let Some('0'..='9') = self.input.peek() {
+        while self.input.peek().map_or(false, |c| f(c)) {
             self.read_char();
             ident.push(self.ch.unwrap());
         }
@@ -88,6 +82,14 @@ impl<'a> Lexer<'a> {
             self.read_char()
         }
     }
+}
+
+fn is_identifier(c: &char) -> bool {
+    ('a'..='z').contains(c) || ('A'..='Z').contains(c) || &'_' == c
+}
+
+fn is_number(c: &char) -> bool {
+    ('0'..='9').contains(c)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
