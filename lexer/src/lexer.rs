@@ -21,7 +21,9 @@ impl<'a> Lexer<'a> {
         lex
     }
 
-    pub fn next_token(&mut self) -> Token {
+    pub fn next_token(&mut self) -> Result<Token, LexError> {
+        self.skip_whitespace();
+
         let tok = match self.ch {
             Some('=') => Token::assign(),
             Some(';') => Token::semicolon(),
@@ -31,11 +33,20 @@ impl<'a> Lexer<'a> {
             Some('+') => Token::plus(),
             Some('{') => Token::lbrace(),
             Some('}') => Token::rbrace(),
+            Some('a'..='z') | Some('A'..='Z') | Some('_') => {
+                let literal = &self.read_identifier()?;
+                Token::lookup_ident(literal)
+            }
+            Some('0'..='9') => {
+                let literal = &self.read_number()?;
+                let num: i64 = literal.parse::<i64>().unwrap();
+                Token::int(num)
+            }
+            Some(c) => return Err(LexError::invalid_char(c)),
             None => Token::eof(),
-            _ => unreachable!(),
         };
         self.read_char();
-        tok
+        Ok(tok)
     }
 
     fn read_char(&mut self) {
@@ -43,18 +54,126 @@ impl<'a> Lexer<'a> {
         self.pos = self.read_pos;
         self.read_pos += 1;
     }
+
+    fn read_identifier(&mut self) -> Result<String, LexError> {
+        let mut ident = String::new();
+        match self.ch {
+            Some('a'..='z') | Some('A'..='Z') | Some('_') => ident.push(self.ch.unwrap()),
+            Some(c) => return Err(LexError::invalid_char(c)),
+            None => return Err(LexError::eof()),
+        }
+        while let Some('a'..='z') | Some('A'..='Z') | Some('_') = self.input.peek() {
+            self.read_char();
+            ident.push(self.ch.unwrap());
+        }
+        Ok(ident)
+    }
+
+    fn read_number(&mut self) -> Result<String, LexError> {
+        let mut ident = String::new();
+        match self.ch {
+            Some('0'..='9') => ident.push(self.ch.unwrap()),
+            Some(c) => return Err(LexError::invalid_char(c)),
+            None => return Err(LexError::eof()),
+        }
+        while let Some('0'..='9') = self.input.peek() {
+            self.read_char();
+            ident.push(self.ch.unwrap());
+        }
+        Ok(ident)
+    }
+
+    fn skip_whitespace(&mut self) {
+        while let Some(' ') | Some('\n') | Some('\t') | Some('\r') = self.ch {
+            self.read_char()
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum LexErrorKind {
+    InvalidChar(char),
+    Eof,
+}
+
+pub type LexError = LexErrorKind;
+
+impl LexError {
+    fn invalid_char(c: char) -> Self {
+        LexErrorKind::InvalidChar(c)
+    }
+    fn eof() -> Self {
+        LexErrorKind::Eof
+    }
 }
 
 #[test]
 fn new_token_test() {
     let input = "=+(){},;";
     let mut lexer = Lexer::new(input);
-    assert_eq!(lexer.next_token(), Token::assign());
-    assert_eq!(lexer.next_token(), Token::plus());
-    assert_eq!(lexer.next_token(), Token::lparen());
-    assert_eq!(lexer.next_token(), Token::rparen());
-    assert_eq!(lexer.next_token(), Token::lbrace());
-    assert_eq!(lexer.next_token(), Token::rbrace());
-    assert_eq!(lexer.next_token(), Token::comma());
-    assert_eq!(lexer.next_token(), Token::semicolon());
+    let expected = vec![
+        Token::assign(),
+        Token::plus(),
+        Token::lparen(),
+        Token::rparen(),
+        Token::lbrace(),
+        Token::rbrace(),
+        Token::comma(),
+        Token::semicolon(),
+    ];
+    for tok in expected {
+        assert_eq!(lexer.next_token(), Ok(tok));
+    }
+
+    let input = r#"let five = 5;
+let ten = 10;
+
+let add = fn(x, y) {
+    x + y;
+};
+
+let result = add(five, ten);
+"#;
+    let mut lexer = Lexer::new(input);
+    let expected = vec![
+        Token::keyword_let(),
+        Token::ident("five"),
+        Token::assign(),
+        Token::int(5),
+        Token::semicolon(),
+        Token::keyword_let(),
+        Token::ident("ten"),
+        Token::assign(),
+        Token::int(10),
+        Token::semicolon(),
+        Token::keyword_let(),
+        Token::ident("add"),
+        Token::assign(),
+        Token::keyword_function(),
+        Token::lparen(),
+        Token::ident("x"),
+        Token::comma(),
+        Token::ident("y"),
+        Token::rparen(),
+        Token::lbrace(),
+        Token::ident("x"),
+        Token::plus(),
+        Token::ident("y"),
+        Token::semicolon(),
+        Token::rbrace(),
+        Token::semicolon(),
+        Token::keyword_let(),
+        Token::ident("result"),
+        Token::assign(),
+        Token::ident("add"),
+        Token::lparen(),
+        Token::ident("five"),
+        Token::comma(),
+        Token::ident("ten"),
+        Token::rparen(),
+        Token::semicolon(),
+    ];
+    for tok in expected {
+        assert_eq!(lexer.next_token(), Ok(tok));
+    }
 }

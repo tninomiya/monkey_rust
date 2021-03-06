@@ -87,6 +87,14 @@ impl Token {
             token_type: TokenKind::Let,
         }
     }
+
+    pub fn lookup_ident(ident: &str) -> Token {
+        match ident {
+            "fn" => Token::keyword_function(),
+            "let" => Token::keyword_let(),
+            s => Token::ident(s),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
