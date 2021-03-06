@@ -16,9 +16,9 @@ impl Token {
         }
     }
 
-    pub fn ident(s: String) -> Self {
+    pub fn ident(s: &str) -> Self {
         Token {
-            token_type: TokenKind::Ident(s),
+            token_type: TokenKind::Ident(s.to_string()),
         }
     }
 
