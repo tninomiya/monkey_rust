@@ -70,7 +70,7 @@ impl Token {
         }
     }
 
-    pub fn rbarce() -> Self {
+    pub fn rbrace() -> Self {
         Token {
             token_type: TokenKind::RBrace,
         }
