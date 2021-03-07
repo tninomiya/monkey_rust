@@ -26,11 +26,17 @@ impl<'a> Lexer<'a> {
 
         let tok = match self.ch {
             Some('=') => Token::assign(),
+            Some('+') => Token::plus(),
+            Some('-') => Token::minus(),
+            Some('!') => Token::bang(),
+            Some('/') => Token::slash(),
+            Some('*') => Token::asterisk(),
+            Some('<') => Token::lt(),
+            Some('>') => Token::gt(),
             Some(';') => Token::semicolon(),
             Some('(') => Token::lparen(),
             Some(')') => Token::rparen(),
             Some(',') => Token::comma(),
-            Some('+') => Token::plus(),
             Some('{') => Token::lbrace(),
             Some('}') => Token::rbrace(),
             Some(c) if is_identifier(&c) => {
@@ -135,6 +141,8 @@ let add = fn(x, y) {
 };
 
 let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
 "#;
     let mut lexer = Lexer::new(input);
     let expected = vec![
@@ -173,6 +181,18 @@ let result = add(five, ten);
         Token::comma(),
         Token::ident("ten"),
         Token::rparen(),
+        Token::semicolon(),
+        Token::bang(),
+        Token::minus(),
+        Token::slash(),
+        Token::asterisk(),
+        Token::int(5),
+        Token::semicolon(),
+        Token::int(5),
+        Token::lt(),
+        Token::int(10),
+        Token::gt(),
+        Token::int(5),
         Token::semicolon(),
     ];
     for tok in expected {
