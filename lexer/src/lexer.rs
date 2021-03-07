@@ -49,7 +49,7 @@ impl<'a> Lexer<'a> {
                 Token::int(num)
             }
             Some(c) => return Err(LexError::invalid_char(c)),
-            None => Token::eof(),
+            None => return Err(LexError::eof()),
         };
         self.read_char();
         Ok(tok)
@@ -198,4 +198,5 @@ let result = add(five, ten);
     for tok in expected {
         assert_eq!(lexer.next_token(), Ok(tok));
     }
+    assert_eq!(lexer.next_token(), Err(LexError::eof()));
 }
