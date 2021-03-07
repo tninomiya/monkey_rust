@@ -40,6 +40,42 @@ impl Token {
         }
     }
 
+    pub fn minus() -> Self {
+        Token {
+            token_type: TokenKind::Minus,
+        }
+    }
+
+    pub fn bang() -> Self {
+        Token {
+            token_type: TokenKind::Bang,
+        }
+    }
+
+    pub fn asterisk() -> Self {
+        Token {
+            token_type: TokenKind::Asterisk,
+        }
+    }
+
+    pub fn slash() -> Self {
+        Token {
+            token_type: TokenKind::Slash,
+        }
+    }
+
+    pub fn lt() -> Self {
+        Token {
+            token_type: TokenKind::Lt,
+        }
+    }
+
+    pub fn gt() -> Self {
+        Token {
+            token_type: TokenKind::Gt,
+        }
+    }
+
     pub fn comma() -> Self {
         Token {
             token_type: TokenKind::Comma,
@@ -113,6 +149,19 @@ pub enum TokenKind {
     Assign,
     // "+"
     Plus,
+    // "-"
+    Minus,
+    // "!"
+    Bang,
+    // "*"
+    Asterisk,
+    // "/"
+    Slash,
+
+    // "<"
+    Lt,
+    // ">"
+    Gt,
 
     // delimiter
     // ","
