@@ -154,6 +154,18 @@ impl Token {
         }
     }
 
+    pub fn eq() -> Self {
+        Token {
+            token_type: TokenKind::Equal,
+        }
+    }
+
+    pub fn not_eq() -> Self {
+        Token {
+            token_type: TokenKind::NotEqual,
+        }
+    }
+
     pub fn lookup_ident(ident: &str) -> Token {
         match ident {
             "fn" => Token::keyword_function(),
@@ -228,4 +240,8 @@ pub enum TokenKind {
     Else,
     // return
     Return,
+    // ==
+    Equal,
+    // !=
+    NotEqual,
 }

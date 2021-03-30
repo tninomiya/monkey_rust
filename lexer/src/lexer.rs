@@ -25,10 +25,24 @@ impl<'a> Lexer<'a> {
         self.skip_whitespace();
 
         let tok = match self.ch {
-            Some('=') => Token::assign(),
+            Some('=') => {
+                if let Some('=') = self.peek_char() {
+                    self.read_char();
+                    Token::eq()
+                } else {
+                    Token::assign()
+                }
+            }
             Some('+') => Token::plus(),
             Some('-') => Token::minus(),
-            Some('!') => Token::bang(),
+            Some('!') => {
+                if let Some('=') = self.peek_char() {
+                    self.read_char();
+                    Token::not_eq()
+                } else {
+                    Token::bang()
+                }
+            }
             Some('/') => Token::slash(),
             Some('*') => Token::asterisk(),
             Some('<') => Token::lt(),
@@ -59,6 +73,10 @@ impl<'a> Lexer<'a> {
         self.ch = self.input.next();
         self.pos = self.read_pos;
         self.read_pos += 1;
+    }
+
+    fn peek_char(&mut self) -> Option<char> {
+        self.input.peek().cloned()
     }
 
     fn read_identifier(&mut self) -> Result<String, LexError> {
@@ -149,6 +167,9 @@ if (5 < 10) {
 } else {
     return false;
 }
+
+10 == 10;
+10 != 9;
 "#;
     let mut lexer = Lexer::new(input);
     let expected = vec![
@@ -217,6 +238,14 @@ if (5 < 10) {
         Token::keyword_false(),
         Token::semicolon(),
         Token::rbrace(),
+        Token::int(10),
+        Token::eq(),
+        Token::int(10),
+        Token::semicolon(),
+        Token::int(10),
+        Token::not_eq(),
+        Token::int(9),
+        Token::semicolon(),
     ];
     for tok in expected {
         assert_eq!(lexer.next_token(), Ok(tok));
