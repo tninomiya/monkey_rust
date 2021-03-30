@@ -124,10 +124,45 @@ impl Token {
         }
     }
 
+    pub fn keyword_true() -> Self {
+        Token {
+            token_type: TokenKind::True,
+        }
+    }
+
+    pub fn keyword_false() -> Self {
+        Token {
+            token_type: TokenKind::False,
+        }
+    }
+
+    pub fn keyword_if() -> Self {
+        Token {
+            token_type: TokenKind::If,
+        }
+    }
+
+    pub fn keyword_else() -> Self {
+        Token {
+            token_type: TokenKind::Else,
+        }
+    }
+
+    pub fn keyword_return() -> Self {
+        Token {
+            token_type: TokenKind::Return,
+        }
+    }
+
     pub fn lookup_ident(ident: &str) -> Token {
         match ident {
             "fn" => Token::keyword_function(),
             "let" => Token::keyword_let(),
+            "true" => Token::keyword_true(),
+            "false" => Token::keyword_false(),
+            "if" => Token::keyword_if(),
+            "else" => Token::keyword_else(),
+            "return" => Token::keyword_return(),
             s => Token::ident(s),
         }
     }
@@ -183,4 +218,14 @@ pub enum TokenKind {
     Function,
     // let
     Let,
+    // true
+    True,
+    // false
+    False,
+    // if
+    If,
+    // elso
+    Else,
+    // return
+    Return,
 }

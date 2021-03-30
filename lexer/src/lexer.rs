@@ -143,6 +143,12 @@ let add = fn(x, y) {
 let result = add(five, ten);
 !-/*5;
 5 < 10 > 5;
+
+if (5 < 10) {
+    return true;
+} else {
+    return false;
+}
 "#;
     let mut lexer = Lexer::new(input);
     let expected = vec![
@@ -194,6 +200,23 @@ let result = add(five, ten);
         Token::gt(),
         Token::int(5),
         Token::semicolon(),
+        Token::keyword_if(),
+        Token::lparen(),
+        Token::int(5),
+        Token::lt(),
+        Token::int(10),
+        Token::rparen(),
+        Token::lbrace(),
+        Token::keyword_return(),
+        Token::keyword_true(),
+        Token::semicolon(),
+        Token::rbrace(),
+        Token::keyword_else(),
+        Token::lbrace(),
+        Token::keyword_return(),
+        Token::keyword_false(),
+        Token::semicolon(),
+        Token::rbrace(),
     ];
     for tok in expected {
         assert_eq!(lexer.next_token(), Ok(tok));
