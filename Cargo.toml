@@ -2,5 +2,6 @@
 
 members = [
     "token",
-    "lexer"
+    "lexer",
+    "repl",
 ]
