@@ -4,5 +4,6 @@ members = [
     "token",
     "lexer",
     "repl",
-    "ast"
+    "ast",
+    "parser"
 ]

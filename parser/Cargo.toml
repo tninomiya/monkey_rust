@@ -1,0 +1,13 @@
+[package]
+name = "parser"
+version = "0.1.0"
+authors = ["Tomoki Ninomiya <t.miliya612@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ast = {path = "../ast"}
+lexer = {path = "../lexer"}
+token = {path = "../token"}
+
