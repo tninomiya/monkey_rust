@@ -1,5 +1,5 @@
 use lexer::lexer;
-use std::io::{BufRead, BufReader, BufWriter, Read, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 const PROMPT: &str = ">> ";
 
 pub fn start<R: Read, W: Write>(input: R, mut output: W) -> std::io::Result<()> {
