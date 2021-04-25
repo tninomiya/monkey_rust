@@ -1,18 +1,8 @@
 use token::token;
 
-pub enum Node {
-    Program(Vec<Statement>),
-}
+pub type Program = Vec<Statement>;
 
-impl Node {
-    // TODO: change to debug impl
-    pub fn token_literal(&self) -> Option<String> {
-        match self {
-            Node::Program(statements) => statements.get(0).map(|s| s.token_literal()),
-        }
-    }
-}
-
+#[derive(Debug)]
 pub enum Statement {
     Let(Expression, Expression),
 }
@@ -26,6 +16,7 @@ impl Statement {
     }
 }
 
+#[derive(Debug)]
 pub enum Expression {
     Identifier(String),
 }
@@ -34,7 +25,7 @@ impl Expression {
     // TODO: change to debug impl
     pub fn token_literal(&self) -> String {
         match self {
-            Expression::Identifier(_) => String::from("Ident"),
+            Expression::Identifier(l) => l.clone(),
         }
     }
 }
